@@ -52,7 +52,7 @@ public class BodyPart {
     public void render(PApplet main, int x, int y){
         x += relX;
         y += relY;
-        Logger.log(Logger.LogLevel.DEBUG, "Rendering %s with size %.1f at %d, %d", this, size,x , y);
+        //Logger.log(Logger.LogLevel.DEBUG, "Rendering %s with size %.1f at %d, %d", this, size,x , y);
         main.textureMode(PConstants.NORMAL);
         main.beginShape();
             main.texture(texture);

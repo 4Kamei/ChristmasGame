@@ -18,14 +18,20 @@ public class SnowmanEntity extends Renderable {
     private int stackSize;
     private PApplet main;
     private int maxSize;
+    private int addSize = 5;
+    private int smallest = 30;
+    private int width;
+    private int height;
+
     public SnowmanEntity(int y, int x, PApplet main) {
+        this.renderPriority = 50;
         parts = new ArrayList<>();
         this.stackSize = parts.size();
         this.health = 1;
         this.y = y;
         this.x = x;
         this.main = main;
-        maxSize = 0;
+        maxSize = 10;
     }
 
     public BodyPart getBottom(){
@@ -33,23 +39,24 @@ public class SnowmanEntity extends Renderable {
     }
 
     public void add(BodyPart part){
-        maxSize += 10;
+        maxSize += addSize;
         parts.add(0, part);
-        int index = 1;
+        int index = parts.size();
         for (BodyPart bodyPart : parts) {
-            bodyPart.updateSize(maxSize/Math.log(++index));
+            bodyPart.updateSize(maxSize * --index/parts.size() + smallest);
         }
         Logger.log(Logger.LogLevel.ALL, "Snowman stack size = %d", parts.size());
         updatePositions();
     }
     public void addTop(BodyPart part){
+        maxSize += addSize;
         parts.add(part);
         updatePositions();
     }
 
     public void pop(){
-        maxSize -= 10;
-        parts.remove(1);
+        maxSize -= addSize;
+        parts.remove(0);
         stackSize--;
         updatePositions();
     }
@@ -57,7 +64,7 @@ public class SnowmanEntity extends Renderable {
     private void updatePositions(){
         int loopy = 0;
         for (BodyPart part : parts) {
-            loopy -= part.getSize();
+            loopy -= part.getSize()*4/5;
             part.updatePosition((int) ((maxSize - part.getSize() / 2) -maxSize), loopy);
         }
     }
@@ -84,4 +91,5 @@ public class SnowmanEntity extends Renderable {
         this.x = x;
         this.y = y;
     }
+
 }

@@ -27,7 +27,7 @@ public class Display extends PApplet {
     }
 
     public void settings(){
-        size(800, 600, P2D);
+        size(1200, 600, P2D);
         noSmooth();
     }
 
@@ -37,6 +37,8 @@ public class Display extends PApplet {
     private Santa player;
 
     public void setup() {
+
+        surface.setResizable(false);
 
         background(0);
         noStroke();
@@ -83,7 +85,17 @@ public class Display extends PApplet {
             }
                 s.setVel(3*Math.random() + 1, Math.random() - 2);
                 queue.addAndSort(s);
+                break;
+            case 39:
+                snowman1.setX(1);
+                break;
+            case 37:
+                snowman1.setX(-1);
+                break;
+            case 38:
+                snowman1.setX(0);
         }
+
 
     }
 

@@ -30,12 +30,15 @@ public class Map extends Renderable {
             line = line.replace("<", "").replace(">","");
             String[] coords = line.split(",");
             try {
-                vertices.add(new Vertex(Integer.parseInt(coords[0]), Integer.parseInt(coords[1])));
+                vertices.add(new Vertex(Float.parseFloat(coords[0]), Float.parseFloat(coords[1])));
             }catch (Exception e){Logger.log(Logger.LogLevel.ERROR, "Could not add vertex <%s, %s>", coords[0], coords[1]);}
         }
     }
 
-    public boolean checkCollision(int x, int y) {
+    public boolean checkCollision(int x1, int y1) {
+
+        float x = (float) x1/main.width;
+        float y = (float) y1/main.height;
 
         Vertex left = null, right = null;
         for (Vertex vertex : vertices) {
@@ -47,9 +50,9 @@ public class Map extends Renderable {
             }
         }
         if (left != null && right != null){
-            int dy = right.y - left.y;
-            int dx = right.x - left.x;
-            double g = ((float) dy) / ((float) dx) * -1;
+            float dy = right.y - left.y;
+            float dx = right.x - left.x;
+            double g = (dy) / (dx) * -1;
             double actualX = (right.x - x);
             double newY = actualX * g + right.y;
             return y > newY;
@@ -69,8 +72,8 @@ public class Map extends Renderable {
         main.fill(158);
         main.beginShape();
             vertices.forEach(vertex -> vertex.render(main));
-            main.vertex(800, 600);
-            main.vertex(0, 600);
+            main.vertex(main.width, main.height);
+            main.vertex(0, main.height);
         main.endShape();
         main.noFill();
     }
@@ -81,15 +84,15 @@ public class Map extends Renderable {
     }
 
     private class Vertex {
-        private int x, y;
+        private float x, y;
 
-        public Vertex(int x, int y){
+        public Vertex(float x, float y){
             this.x = x;
             this.y = y;
         }
 
         public void render(PApplet main){
-            main.vertex(x, y);
+            main.vertex(x*main.width, y*main.height);
         }
 
         @Override
@@ -108,18 +111,11 @@ public class Map extends Renderable {
 
             Vertex vertex = (Vertex) o;
 
-            if (x != vertex.x) return false;
-            //noinspection RedundantIfStatement
-            if (y != vertex.y) return false;
+            if (Float.compare(vertex.x, x) != 0) return false;
+            if (Float.compare(vertex.y, y) != 0) return false;
 
             return true;
         }
 
-        @Override
-        public int hashCode() {
-            int result = x;
-            result = 31 * result + y;
-            return result;
-        }
     }
 }

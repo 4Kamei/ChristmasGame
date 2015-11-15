@@ -96,13 +96,10 @@ public class SnowmanEntity extends Renderable {
         if (map.checkCollision(x, y+1))
             dy = 0;
         else
-            dy += 0.1;
+            dy += 0.16;
 
-        if (map.checkCollision((int) (x + 2*dx), y))
-            dy -= 0.05;
-        else if (map.checkCollision((int) (x - 2*dx), y))
-            dy += 0.05;
-
+        if (map.checkCollision((int) (x + dx), y))
+            dy -= 0.2;
 
         for (BodyPart part : parts) {
             part.render(main, x , y);
@@ -119,4 +116,7 @@ public class SnowmanEntity extends Renderable {
         this.dy = y;
     }
 
+    public void setX(double x) {
+        this.dx = x;
+    }
 }

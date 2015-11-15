@@ -39,23 +39,25 @@ public class Map extends Renderable {
 
         Vertex left = null, right = null;
         for (Vertex vertex : vertices) {
-            if (vertex.x < x){
+            if (vertex.x < x) {
                 left = vertex;
-            }else{
+            } else {
                 right = vertex;
                 break;
             }
         }
-
-        int dy = right.y - left.y;
-        int dx = right.x - left.x;
-        double g = ((float) dy)/((float)dx)*-1;
-        double actualX = (right.x - x);
-        double newY = actualX * g + right.y;
-        Logger.log(Logger.LogLevel.DEBUG, "Left is : %s, right is %s  New Y = %.1f", left, right, newY);
+        if (left != null && right != null){
+            int dy = right.y - left.y;
+            int dx = right.x - left.x;
+            double g = ((float) dy) / ((float) dx) * -1;
+            double actualX = (right.x - x);
+            double newY = actualX * g + right.y;
+            return y > newY;
+        }
+        //Logger.log(Logger.LogLevel.DEBUG, "Left is : %s, right is %s  New Y = %.1f", left, right, newY);
 
         //Y goes down when object goes up. Nice.
-        return y > newY;
+        return false;
     }
     @Override
     public void setup() {
@@ -64,7 +66,7 @@ public class Map extends Renderable {
 
     @Override
     public void render() {
-        main.fill(255);
+        main.fill(158);
         main.beginShape();
             vertices.forEach(vertex -> vertex.render(main));
             main.vertex(800, 600);

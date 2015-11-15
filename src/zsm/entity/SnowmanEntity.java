@@ -3,6 +3,7 @@ package zsm.entity;
 import processing.core.PApplet;
 import sun.rmi.runtime.Log;
 import zsm.logger.Logger;
+import zsm.map.Map;
 import zsm.render.Renderable;
 
 import java.util.ArrayList;
@@ -13,6 +14,8 @@ import java.util.ArrayList;
 public class SnowmanEntity extends Renderable {
 
     private int x, y;
+    private double dx, dy;
+
     private double health;
     private ArrayList<BodyPart> parts;
     private int stackSize;
@@ -22,10 +25,12 @@ public class SnowmanEntity extends Renderable {
     private int smallest = 30;
     private int width;
     private int height;
+    private Map map;
 
-    public SnowmanEntity(int y, int x, PApplet main) {
+    public SnowmanEntity(int x, int y, PApplet main, Map map) {
         this.renderPriority = 50;
         parts = new ArrayList<>();
+        this.map = map;
         this.stackSize = parts.size();
         this.health = 1;
         this.y = y;
@@ -41,19 +46,27 @@ public class SnowmanEntity extends Renderable {
     public void add(BodyPart part){
         maxSize += addSize;
         parts.add(0, part);
-        int index = parts.size();
-        for (BodyPart bodyPart : parts) {
-            bodyPart.updateSize(maxSize * --index/parts.size() + smallest);
-        }
+
+        updateSize();
         Logger.log(Logger.LogLevel.ALL, "Snowman stack size = %d", parts.size());
         updatePositions();
     }
     public void addTop(BodyPart part){
         maxSize += addSize;
         parts.add(part);
+
+        updateSize();
         updatePositions();
     }
 
+    private void updateSize(){
+
+        int index = parts.size();
+        for (BodyPart bodyPart : parts) {
+            bodyPart.updateSize(maxSize * --index/parts.size() + smallest);
+        }
+
+    }
     public void pop(){
         maxSize -= addSize;
         parts.remove(0);
@@ -77,6 +90,20 @@ public class SnowmanEntity extends Renderable {
 
     @Override
     public void render() {
+        x += dx;
+        y += dy;
+
+        if (map.checkCollision(x, y+1))
+            dy = 0;
+        else
+            dy += 0.1;
+
+        if (map.checkCollision((int) (x + 2*dx), y))
+            dy -= 0.05;
+        else if (map.checkCollision((int) (x - 2*dx), y))
+            dy += 0.05;
+
+
         for (BodyPart part : parts) {
             part.render(main, x , y);
         }
@@ -87,9 +114,9 @@ public class SnowmanEntity extends Renderable {
 
     }
 
-    public void setPos(int x, int y) {
-        this.x = x;
-        this.y = y;
+    public void setVel(double x, double y) {
+        this.dx = x;
+        this.dy = y;
     }
 
 }

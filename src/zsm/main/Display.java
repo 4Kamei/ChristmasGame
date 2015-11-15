@@ -1,13 +1,16 @@
 package zsm.main;
 
 import processing.core.PApplet;
+import processing.event.KeyEvent;
 import processing.event.MouseEvent;
+import sun.rmi.runtime.Log;
 import zsm.entity.BodyPart;
 import zsm.entity.Santa;
 import zsm.entity.SnowmanEntity;
 import zsm.logger.Logger;
 import zsm.map.Map;
 import zsm.render.RenderQueue;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -44,12 +47,14 @@ public class Display extends PApplet {
             e.printStackTrace();
         }
 
-        snowman1 = new SnowmanEntity(20, 20, this);
+        snowman1 = new SnowmanEntity(20, 20, this, map);
         player = new Santa(0, 0, this);
 
         try {
             snowman1.add(new BodyPart(1, 100));
         } catch (Exception e){ e.printStackTrace(); }
+
+
 
         queue.add(snowman1);
         queue.add(map);
@@ -64,22 +69,25 @@ public class Display extends PApplet {
         queue.reset();
     }
 
-    @Override
-    public void mouseMoved(MouseEvent event){
-        snowman1.setPos(event.getX(), event.getY());
+    public void keyPressed(KeyEvent event){
+        Logger.log(DEBUG, "Keyboard key clicked ID = %s", event.getKeyCode());
+        switch (event.getKeyCode()) {
+            case 65:
+                SnowmanEntity s = new SnowmanEntity(mouseX, mouseY, this, map);
+            try{
+                s.add(new BodyPart(3, 100));
+                while (Math.random() < 0.6)
+                    s.add(new BodyPart(2, 100));
+            }catch(Exception ex){
+                Logger.log(ERROR, ex.getMessage());
+            }
+                s.setVel(3*Math.random() + 1, Math.random() - 2);
+                queue.addAndSort(s);
+        }
+
     }
 
     public void mousePressed(MouseEvent event){
         Logger.log(DEBUG, "Mouse clicked at %d, %d, with button %d",mouseX, mouseY, event.getAction());
-        if (event.getButton() == 37){
-            try {
-                //Values of random between 1.5 and 3.5, flooring gives 1,2 and 3 as possible values.
-                snowman1.add(new BodyPart((int) ((Math.random()*2) + 1.5), 100));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }else {
-            snowman1.pop();
-        }
     }
 }

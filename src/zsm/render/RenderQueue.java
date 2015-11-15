@@ -21,9 +21,13 @@ public class RenderQueue {
         Logger.log(DEBUG, renderable + " has been added to the RenderQueue");
         queue.add(renderable);
         //Sort in decending order (large numbers rendered first)
+        sort();
+        Logger.log(DEBUG, "renderQueue now contains " + queue.size() + " items");
+    }
+
+    public void sort(){
         queue.sort(
                 (r2, r1) -> Integer.compare(r1.getRenderPriority(), r2.getRenderPriority()));
-        Logger.log(DEBUG, "renderQueue now contains " + queue.size() + " items");
     }
 
     public void remove(Renderable r){

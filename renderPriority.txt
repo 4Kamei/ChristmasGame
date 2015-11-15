@@ -1,0 +1,12 @@
+
+    MAP BACKGROUND = 100
+
+    MAP FOREGROUND  = 60
+
+    SANTA           = 40
+
+    SNOWMAN         = 50
+
+    PARTICLES       = 30
+
+    USER INTERFACE  = 20

@@ -7,7 +7,6 @@ import zsm.render.Renderable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.DoubleSummaryStatistics;
 import java.util.Scanner;
 
 /**
@@ -30,17 +29,14 @@ public class Map extends Renderable {
             line = line.replace("<", "").replace(">","");
             String[] coords = line.split(",");
             try {
-                vertices.add(new Vertex(Float.parseFloat(coords[0]), Float.parseFloat(coords[1])));
+                vertices.add(new Vertex(Integer.parseInt(coords[0]), Integer.parseInt(coords[1])));
             }catch (Exception e){Logger.log(Logger.LogLevel.ERROR, "Could not add vertex <%s, %s>", coords[0], coords[1]);}
         }
     }
 
-    public boolean checkCollision(int x1, int y1) {
+    public boolean checkCollision(int x, int y) {
 
-        float x = (float) x1/main.width;
-        float y = (float) y1/main.height;
-
-        Vertex left = null, right = null;
+        Vertex left = vertices.get(0), right = vertices.get(vertices.size()-1);
         for (Vertex vertex : vertices) {
             if (vertex.x < x) {
                 left = vertex;
@@ -49,10 +45,13 @@ public class Map extends Renderable {
                 break;
             }
         }
+
         if (left != null && right != null){
-            float dy = right.y - left.y;
-            float dx = right.x - left.x;
-            double g = (dy) / (dx) * -1;
+            int dy = right.y - left.y;
+            int dx = right.x - left.x;
+            double g = ((float) dy) / ((float) dx) * -1;
+            if (dx == 0)
+                g = 0;
             double actualX = (right.x - x);
             double newY = actualX * g + right.y;
             return y > newY;
@@ -62,37 +61,56 @@ public class Map extends Renderable {
         //Y goes down when object goes up. Nice.
         return false;
     }
+
+
+    public double getG(double x) {
+        Vertex left = null, right = null;
+        for (Vertex vertex : vertices) {
+            if (vertex.x < x) {
+                left = vertex;
+            } else {
+                right = vertex;
+                break;
+            }
+        }
+
+        if (left != null && right != null) {
+            int dy = right.y - left.y;
+            int dx = right.x - left.x;
+            double g = ((float) dy) / ((float) dx) * -1;
+            return g;
+        }
+        return 1;
+    }
+
+
     @Override
     public void setup() {
 
     }
+
 
     @Override
     public void render() {
         main.fill(158);
         main.beginShape();
             vertices.forEach(vertex -> vertex.render(main));
-            main.vertex(main.width, main.height);
-            main.vertex(0, main.height);
+            main.vertex(1200, 800);
+            main.vertex(0, 800);
         main.endShape();
         main.noFill();
     }
 
-    @Override
-    public void update() {
-
-    }
-
     private class Vertex {
-        private float x, y;
+        private int x, y;
 
-        public Vertex(float x, float y){
+        public Vertex(int x, int y){
             this.x = x;
             this.y = y;
         }
 
         public void render(PApplet main){
-            main.vertex(x*main.width, y*main.height);
+            main.vertex(x, y);
         }
 
         @Override
@@ -111,11 +129,18 @@ public class Map extends Renderable {
 
             Vertex vertex = (Vertex) o;
 
-            if (Float.compare(vertex.x, x) != 0) return false;
-            if (Float.compare(vertex.y, y) != 0) return false;
+            if (x != vertex.x) return false;
+            //noinspection RedundantIfStatement
+            if (y != vertex.y) return false;
 
             return true;
         }
 
+        @Override
+        public int hashCode() {
+            int result = x;
+            result = 31 * result + y;
+            return result;
+        }
     }
 }

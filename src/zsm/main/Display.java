@@ -3,6 +3,7 @@ package zsm.main;
 import processing.core.PApplet;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
+import processing.opengl.PGL;
 import sun.rmi.runtime.Log;
 import zsm.entity.BodyPart;
 import zsm.entity.Santa;
@@ -27,8 +28,10 @@ public class Display extends PApplet {
     }
 
     public void settings(){
-        size(1200, 600, P2D);
+        //Selection of display modes.
+        size(1200, 800, P2D);
         noSmooth();
+        keyRepeatEnabled = true;
     }
 
     private SnowmanEntity snowman1;
@@ -50,14 +53,16 @@ public class Display extends PApplet {
         }
 
         snowman1 = new SnowmanEntity(20, 20, this, map);
-        player = new Santa(0, 0, this);
+        player = new Santa(100, 1, this, map);
 
         try {
             snowman1.add(new BodyPart(1, 100));
         } catch (Exception e){ e.printStackTrace(); }
 
 
+        player.setup();
 
+        queue.add(player);
         queue.add(snowman1);
         queue.add(map);
 
@@ -83,22 +88,31 @@ public class Display extends PApplet {
             }catch(Exception ex){
                 Logger.log(ERROR, ex.getMessage());
             }
-                s.setVel(3*Math.random() + 1, Math.random() - 2);
+                s.setVel(3*(Math.random() -0.5), (Math.random() - 2) * 3);
                 queue.addAndSort(s);
                 break;
             case 39:
-                snowman1.setX(1);
+                player.startRight();
                 break;
             case 37:
-                snowman1.setX(-1);
+                player.startLeft();
                 break;
             case 38:
-                snowman1.setX(0);
+                player.jump();
+                break;
         }
-
-
     }
 
+    public void keyReleased(KeyEvent event){
+        switch (event.getKeyCode()){
+            case 39:
+                player.stopRight();
+                break;
+            case 37:
+                player.stopLeft();
+                break;
+        }
+    }
     public void mousePressed(MouseEvent event){
         Logger.log(DEBUG, "Mouse clicked at %d, %d, with button %d",mouseX, mouseY, event.getAction());
     }

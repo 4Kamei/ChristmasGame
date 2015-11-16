@@ -1,8 +1,8 @@
 package zsm.entity;
 
 import processing.core.PApplet;
-import sun.rmi.runtime.Log;
 import zsm.logger.Logger;
+import zsm.main.Reference;
 import zsm.map.Map;
 import zsm.render.Renderable;
 
@@ -26,9 +26,10 @@ public class SnowmanEntity extends Renderable {
     private int width;
     private int height;
     private Map map;
+    private boolean inAir;
 
     public SnowmanEntity(int x, int y, PApplet main, Map map) {
-        this.renderPriority = 50;
+        this.renderPriority = Reference.snowmanPriority;
         parts = new ArrayList<>();
         this.map = map;
         this.stackSize = parts.size();
@@ -37,6 +38,7 @@ public class SnowmanEntity extends Renderable {
         this.x = x;
         this.main = main;
         maxSize = 10;
+        this.inAir = false;
     }
 
     public BodyPart getBottom(){
@@ -63,7 +65,7 @@ public class SnowmanEntity extends Renderable {
 
         int index = parts.size();
         for (BodyPart bodyPart : parts) {
-            bodyPart.updateSize(maxSize * --index/parts.size() + smallest);
+            bodyPart.updateSize(maxSize * Math.log(maxSize) * --index/(2 * parts.size()) + smallest);
         }
 
     }
@@ -74,6 +76,10 @@ public class SnowmanEntity extends Renderable {
         updatePositions();
     }
 
+    public double getMaxSpeed(){
+        return Math.sqrt(parts.size());
+    }
+
     private void updatePositions(){
         int loopy = 0;
         for (BodyPart part : parts) {
@@ -82,34 +88,39 @@ public class SnowmanEntity extends Renderable {
         }
     }
 
+
     @Override
-    @Deprecated
     public void setup() {
-        Logger.log(Logger.LogLevel.ALL, this + " cannot setup - deprecated");
+
     }
 
     @Override
     public void render() {
-        x += dx;
-        y += dy;
 
-        if (map.checkCollision(x, y+1))
-            dy = 0;
-        else
+        if (!map.checkCollision(x, y+2))
+            inAir = true;
+        else {
+            if (!inAir)
+                dy = 0;
+            inAir = false;
+        }
+
+        if (inAir)
             dy += 0.16;
 
-        if (map.checkCollision((int) (x + dx), y))
-            dy -= 0.2;
+        if (!inAir)
+            if (map.checkCollision((int) (x + dx), y))
+                dy = -map.getG(x+dx)*dx;
+
+        x += dx;
+        y += dy;
 
         for (BodyPart part : parts) {
             part.render(main, x , y);
         }
-    }
-
-    @Override
-    public void update() {
 
     }
+
 
     public void setVel(double x, double y) {
         this.dx = x;
